@@ -55,6 +55,7 @@ class App(QWidget):
         self.text.setText(result)
 
 
+
 if __name__ == "__main__":
     a = QtWidgets.QApplication(sys.argv)
     app = App()
