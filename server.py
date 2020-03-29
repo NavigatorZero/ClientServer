@@ -1,30 +1,45 @@
 import socket
 
 import Database
+import json
+import pickle
+import numpy as np
+
+
+class StdClass:
+    pass
 
 
 print("hello")
-PORT = 12006
-HOST = '0.0.0.0'
+PORT = 12008
+HOST = 'localhost'
 serv = socket.socket()
 serv.bind((HOST, PORT))
 serv.listen()
 conn, addr = serv.accept()
 print('Connect', addr)
-test = Database.Database()
+db = Database.Database()
 while True:
-    data = conn.recv(1024)
+    data = conn.recv(4096)
     # table_dolgi
-    if data:
-        print(data)
-        table = test.getTable(data.decode())
-        for tuples in table:
-
-            for item in tuples:
-                print(item)
-                print(type(item))
-                if type(item) is str:
-                    print(item)
-                    conn.send(item.encode())
+    if pickle.loads(data) == "tablesubject":
+        table = db.getTable(pickle.loads(data))
+        data = pickle.dumps(table)
         conn.send(data)
-        conn.sendall(data)
+    elif data:
+
+        result = []
+        test = pickle.loads(data)
+        opa = test.split(', ')
+        for i in opa:
+            if i[0:3] == 'b"(':
+                result.append(int(i[3:]))
+                continue
+
+            if i[-2] == ')':
+                last = i.replace(')"', "")
+                result.append(str(last))
+                continue
+
+            result.append(str(i))
+        db.updateTable(result)
