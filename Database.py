@@ -1,29 +1,41 @@
 import pymysql
-
+import pickle
 
 class Database:
     conn = pymysql.connect('localhost',
                            'root',
-                           'DBPASSWORDHEHE',
+                           '$password',
                            'mainChema')
-
     cur = conn.cursor()
 
     def getTable(self, table: str):
         with self.conn:
-            result = []
+            result = [[] for i in range(2)]
+
             self.cur.execute("SELECT * FROM " + table)
             rows = self.cur.fetchall()
             for row in rows:
-                result.append(str(row).encode())
+                result[0].append(row)
 
+            self.cur.execute("select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=%s", table)
+            rows2 = self.cur.fetchall()
+
+            for row in rows2:
+                result[1].append(str(row[3]))
+
+            result = pickle.dumps(result)
             return result
 
     def updateTable(self, data):
         with self.conn:
-            if data[0] == 1:
-                self.cur.execute(""" Insert into `tablesubject` (`subject`, `teacher`) SET (%s, %s)""",
-                                 (data[1], data[2]))
-
+            try:
+                self.cur.execute('DELETE FROM tablesubject')
                 self.conn.commit()
-                print("sucess")
+                for item in data:
+                    print(item[1])
+                    print(item[2])
+                    self.cur.execute("INSERT INTO tablesubject(Subject,Teacher) values (%s,%s)",
+                                     (str(item[1]), str(item[2])))
+                    self.conn.commit()
+            except:
+                print("error")

@@ -21,25 +21,18 @@ print('Connect', addr)
 db = Database.Database()
 while True:
     data = conn.recv(4096)
-    # table_dolgi
-    if pickle.loads(data) == "tablesubject":
-        table = db.getTable(pickle.loads(data))
-        data = pickle.dumps(table)
-        conn.send(data)
-    elif data:
 
-        result = []
-        test = pickle.loads(data)
-        opa = test.split(', ')
-        for i in opa:
-            if i[0:3] == 'b"(':
-                result.append(int(i[3:]))
-                continue
+    if data:
+        try:
+            data = data.decode('utf-8')
+            if data == "tablesubject":
+                table = db.getTable(data)
+                conn.sendall(table)
+        except:
+            pass
 
-            if i[-2] == ')':
-                last = i.replace(')"', "")
-                result.append(str(last))
-                continue
-
-            result.append(str(i))
-        db.updateTable(result)
+            try:
+                newTable = pickle.loads(data)
+                db.updateTable(newTable)
+            except:
+                pass
