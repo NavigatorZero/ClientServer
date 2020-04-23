@@ -5,7 +5,7 @@ import pickle
 class Database:
     conn = pymysql.connect('localhost',
                            'root',
-                           'Savelev01',
+                           '$password',
                            'mainChema')
     cur = conn.cursor()
 
