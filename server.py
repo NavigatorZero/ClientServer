@@ -25,12 +25,13 @@ while True:
     if data:
         try:
             data = data.decode('utf-8')
-            if data == "tablesubject":
+            arrayOfTables = db.getTableList()
+            print(arrayOfTables)
+            if data in arrayOfTables:
                 table = db.getTable(data)
                 conn.sendall(table)
         except:
             pass
-
             try:
                 newTable = pickle.loads(data)
                 db.updateTable(newTable)

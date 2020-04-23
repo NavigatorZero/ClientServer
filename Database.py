@@ -1,10 +1,11 @@
 import pymysql
 import pickle
 
+
 class Database:
     conn = pymysql.connect('localhost',
                            'root',
-                           '$password',
+                           'Savelev01',
                            'mainChema')
     cur = conn.cursor()
 
@@ -29,13 +30,33 @@ class Database:
     def updateTable(self, data):
         with self.conn:
             try:
-                self.cur.execute('DELETE FROM tablesubject')
+
+                str = ", "
+                str = str.join(data[-1])
+                print(str)
+
+                self.cur.execute('DELETE FROM ' + data[-2])
                 self.conn.commit()
-                for item in data:
-                    print(item[1])
-                    print(item[2])
-                    self.cur.execute("INSERT INTO tablesubject(Subject,Teacher) values (%s,%s)",
-                                     (str(item[1]), str(item[2])))
+
+                for item in data[:-2]:
+                    print(data[-2])
+                    self.cur.execute("INSERT INTO " + data[-2] + " (" + str + ") VALUES (%s, %s, %s)",
+                                     [item[0], item[1], item[2]])
                     self.conn.commit()
+            except (self.conn.DatabaseError) as e:
+                print(e)
+                return None
+
+    def getTableList(self):
+        with self.conn:
+            try:
+                result = []
+                self.cur.execute(
+                    "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='mainChema' ")
+
+                row = [item[0] for item in self.cur.fetchall()]
+
+                return row
+
             except:
-                print("error")
+                print("error get table names")

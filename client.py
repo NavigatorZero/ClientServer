@@ -80,7 +80,8 @@ class App(QWidget):
                 break
 
         if data:
-
+            if (self.tableWidget.columnCount() > 0 ):
+                self.tableWidget.clear()
             self.tableWidget.setRowCount(len(result[0]))
             self.tableWidget.setColumnCount(len(result[1]))
             global rows
@@ -112,13 +113,12 @@ class App(QWidget):
     def Upload(self):
         dataToChange = []
         for row in range(self.tableWidget.rowCount()):
-
             dataToChange.append([])
-
             for column in range(self.tableWidget.columnCount()):
                 index = self.tableWidget.item(row, column)
                 dataToChange[row].append(index.text())
-
+        dataToChange.append(self.textTable.toPlainText())
+        dataToChange.append(result[1])
         cl.sendall(pickle.dumps(dataToChange))
         # We suppose data are strings
 
